@@ -72,9 +72,9 @@ def build_graph(use_checkpointer: bool = True):
         checkpointer = MemorySaver()
         return builder.compile(
             checkpointer=checkpointer,
-            # 인터뷰어가 질문을 하면 중단 → 사용자 응답 대기
-            # 완성도가 충분하면 domain_translator로 진행 (interrupt 없음)
-            interrupt_after=["interviewer"],
+            # completeness_check 후 중단 → 사용자 응답 대기
+            # 완성도가 충분하면 다음 턴에 domain_translator 진행
+            interrupt_after=["completeness_check"],
         )
 
     return builder.compile()

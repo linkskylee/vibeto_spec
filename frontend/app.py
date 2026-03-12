@@ -28,6 +28,8 @@ if "final_spec" not in st.session_state:
     st.session_state.final_spec = None
 if "token_stats" not in st.session_state:
     st.session_state.token_stats = None
+if "checklist" not in st.session_state:
+    st.session_state.checklist = {}
 
 # ── 사이드바 ──────────────────────────────────────────────────────
 with st.sidebar:
@@ -50,6 +52,29 @@ with st.sidebar:
     st.progress(st.session_state.completeness_score)
     st.caption(f"{st.session_state.completeness_score * 100:.0f}%")
 
+    # 체크리스트 시각화
+    st.divider()
+    st.write("**📋 수집 현황**")
+
+    CHECKLIST_LABELS = {
+        "project_goal":    ("🚀", "프로젝트 목적"),
+        "target_persona":  ("👤", "대상 사용자"),
+        "business_rules":  ("⚙️", "핵심 기능/규칙"),
+        "data_flow":       ("🔄", "데이터 흐름"),
+        "constraints":     ("🔒", "기술·제약 사항"),
+        "edge_cases":      ("⚠️", "예외 처리"),
+    }
+
+    checklist = st.session_state.checklist
+    if not checklist:
+        st.caption("첫 메시지를 보내면 분석이 시작됩니다.")
+    else:
+        for key, (emoji, label) in CHECKLIST_LABELS.items():
+            done = checklist.get(key, False)
+            icon = "✅" if done else "⬜"
+            color = "normal" if done else "off"
+            st.markdown(f"{icon} {emoji} **{label}**" if done else f"{icon} {emoji} {label}")
+
     if st.session_state.token_stats:
         st.divider()
         st.write("**📊 토큰 분석**")
@@ -67,6 +92,7 @@ with st.sidebar:
         st.session_state.completeness_score = 0.0
         st.session_state.final_spec = None
         st.session_state.token_stats = None
+        st.session_state.checklist = {}
         st.rerun()
 
 # ── 메인 영역 ─────────────────────────────────────────────────────
@@ -125,6 +151,7 @@ if st.session_state.phase != "done":
                     st.session_state.thread_id = data["thread_id"]
                     st.session_state.phase = data["phase"]
                     st.session_state.completeness_score = data["completeness_score"]
+                    st.session_state.checklist = data.get("checklist", {})
 
                     if data.get("final_spec"):
                         st.session_state.final_spec = data["final_spec"]

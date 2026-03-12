@@ -26,6 +26,7 @@ class ChatResponse(BaseModel):
     reply: str              # AI의 다음 질문 또는 완료 메시지
     phase: str              # "interviewing" | "translating" | "generating" | "done"
     completeness_score: float
+    checklist: dict         # 각 항목별 수집 여부 (True/False)
     final_spec: str | None  # 스펙 완성 시에만 값 존재
     token_stats: dict | None
 
@@ -110,6 +111,7 @@ async def send_message(request: ChatRequest):
         reply=last_reply,
         phase=phase,
         completeness_score=completeness,
+        checklist=result_state.get("checklist", {}),
         final_spec=final_spec if phase == "done" else None,
         token_stats=token_stats if phase == "done" else None,
     )

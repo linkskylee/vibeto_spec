@@ -8,6 +8,7 @@ from langgraph.graph.message import add_messages
 
 class RequirementsChecklist(TypedDict):
     """인터뷰 단계에서 수집해야 할 정보 체크리스트"""
+    project_goal: bool      # 프로젝트의 핵심 목적/동기
     business_rules: bool    # 핵심 비즈니스 룰
     edge_cases: bool        # 예외 처리 케이스
     data_flow: bool         # 데이터 흐름
