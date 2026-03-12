@@ -116,7 +116,7 @@ if st.session_state.phase != "done":
                             "message": user_input,
                             "thread_id": st.session_state.thread_id,
                         },
-                        timeout=60.0,
+                        timeout=120.0,
                     )
                     response.raise_for_status()
                     data = response.json()

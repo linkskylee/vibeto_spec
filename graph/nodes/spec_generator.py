@@ -4,25 +4,16 @@ Spec Generator Node — Phase 3
 """
 import json
 from pathlib import Path
-from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import SystemMessage, HumanMessage
 
 from graph.state import GraphState
+from graph.llm_factory import build_llm_with_fallback_invoke
 from schemas.spec import FinalSpec
 
 _PROMPT_PATH = Path(__file__).parent.parent.parent / "prompts" / "spec_generator_system.md"
 _SYSTEM_PROMPT = _PROMPT_PATH.read_text(encoding="utf-8")
 
 
-def _build_llm():
-    from dotenv import load_dotenv
-    load_dotenv()
-    import os
-    llm = ChatGoogleGenerativeAI(
-        model=os.getenv("GEMINI_MODEL", "gemini-2.0-flash"),
-        temperature=0.1,
-    )
-    return llm.with_structured_output(FinalSpec)
 
 
 def _spec_to_markdown(spec: FinalSpec) -> str:
@@ -92,8 +83,6 @@ def run_spec_generator(state: GraphState) -> dict:
     스펙 생성 노드.
     인터뷰 + 도메인 맵을 종합해 최종 스펙 마크다운을 생성합니다.
     """
-    llm = _build_llm()
-
     conversation_text = "\n".join([
         f"{msg.type.upper()}: {msg.content}"
         for msg in state.get("messages", [])
@@ -119,7 +108,9 @@ def run_spec_generator(state: GraphState) -> dict:
 위 정보를 바탕으로 완전한 Agent-ready 스펙 문서를 작성해 주세요."""),
     ]
 
-    result: FinalSpec = llm.invoke(messages_for_llm)
+    result: FinalSpec = build_llm_with_fallback_invoke(
+        messages_for_llm, FinalSpec, temperature=0.1
+    )
     markdown_spec = _spec_to_markdown(result)
 
     # 토큰 수 추정: 문자 수 / 4 (영어 기준 근사치)

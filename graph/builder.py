@@ -70,7 +70,12 @@ def build_graph(use_checkpointer: bool = True):
     if use_checkpointer:
         # MemorySaver: 메모리 기반 체크포인터 (프로덕션은 SqliteSaver 사용)
         checkpointer = MemorySaver()
-        return builder.compile(checkpointer=checkpointer)
+        return builder.compile(
+            checkpointer=checkpointer,
+            # 인터뷰어가 질문을 하면 중단 → 사용자 응답 대기
+            # 완성도가 충분하면 domain_translator로 진행 (interrupt 없음)
+            interrupt_after=["interviewer"],
+        )
 
     return builder.compile()
 
