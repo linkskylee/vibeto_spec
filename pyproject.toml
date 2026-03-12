@@ -2,7 +2,7 @@
 name = "vibeto-chatbot"
 version = "0.1.0"
 description = "Vibe-to-Spec Prompt Architect — Convert vague ideas into Agent-ready spec documents"
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 
 dependencies = [
     "langgraph>=0.2",
@@ -22,6 +22,9 @@ dev = [
     "pytest>=8.0",
     "pytest-asyncio>=0.24",
 ]
+
+[tool.hatch.build.targets.wheel]
+packages = ["graph", "api", "schemas", "prompts", "frontend"]
 
 [build-system]
 requires = ["hatchling"]
